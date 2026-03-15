@@ -94,7 +94,7 @@ struct AcCmdCREnterRanchOK
 
   uint64_t member6{0};
   uint32_t scramblingConstant{0};
-  uint32_t ranchProgress{614090};
+  uint32_t ranchProgress{0};
 
   // List size as a byte. Max length 13
   std::vector<Housing> housing{};

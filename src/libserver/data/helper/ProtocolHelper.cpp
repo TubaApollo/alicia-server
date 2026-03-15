@@ -271,12 +271,15 @@ void BuildProtocolHousing(
   const data::Housing& housingRecord,
   bool hasDurability)
 {
+  const auto housingId = static_cast<uint16_t>(housingRecord.housingId());
+
   protocolHousing.uid = housingRecord.uid();
-  protocolHousing.tid = static_cast<uint16_t>(
-    housingRecord.housingId());
-  protocolHousing.durability = hasDurability 
-    ? housingRecord.durability() 
-    : util::TimePointToAliciaTime(housingRecord.expiresAt());
+  protocolHousing.tid = housingId;
+
+  if (hasDurability)
+    protocolHousing.durability = housingRecord.durability();
+  else
+    protocolHousing.durability = util::TimePointToAliciaTime(housingRecord.expiresAt());
 }
 
 void BuildProtocolHousing(

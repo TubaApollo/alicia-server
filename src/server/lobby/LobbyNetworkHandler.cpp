@@ -7,6 +7,7 @@
 #include "server/ServerInstance.hpp"
 
 #include <libserver/data/helper/ProtocolHelper.hpp>
+#include <libserver/registry/HousingConstants.hpp>
 
 #include <boost/container_hash/hash.hpp>
 #include <spdlog/spdlog.h>
@@ -1472,6 +1473,28 @@ void LobbyNetworkHandler::HandleCreateNickname(
         character.contacts.groups().try_emplace(0);
 
         userCharacterUid = character.uid();
+      });
+
+    // Create default ranch housing (IsDefault=1 from HousingInfo table).
+    std::vector<data::Uid> housingUids;
+    for (const auto housingId : registry::housing::DefaultIds)
+    {
+      const auto housingRecord = _serverInstance.GetDataDirector().CreateHousing();
+      if (not housingRecord)
+        continue;
+
+      housingRecord.Mutable([housingId, &housingUids](data::Housing& housing)
+        {
+          housing.housingId = housingId;
+          housing.expiresAt = std::chrono::system_clock::now()
+            + registry::housing::LifeDuration;
+          housingUids.emplace_back(housing.uid());
+        });
+    }
+
+    userCharacter->Mutable([&housingUids](data::Character& character)
+      {
+        character.housing() = std::move(housingUids);
       });
 
     // Assign the character to the user.
