@@ -84,6 +84,7 @@ void ServerInstance::Initialize()
 
   // Read configurations
 
+  _achievementRegistry.ReadConfig(_resourceDirectory / "config/game/achievements.yaml");
   _courseRegistry.ReadConfig(_resourceDirectory / "config/game/courses.yaml");
   _itemRegistry.ReadConfig(_resourceDirectory / "config/game/items.yaml");
   _magicRegistry.ReadConfig(_resourceDirectory / "config/game/magic.yaml");
@@ -291,6 +292,11 @@ AllChatDirector& ServerInstance::GetAllChatDirector()
 PrivateChatDirector& ServerInstance::GetPrivateChatDirector()
 {
   return _privateChatDirector;
+}
+
+registry::AchievementRegistry& ServerInstance::GetAchievementRegistry()
+{
+  return _achievementRegistry;
 }
 
 registry::CourseRegistry& ServerInstance::GetCourseRegistry()

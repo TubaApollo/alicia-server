@@ -521,10 +521,23 @@ struct AcCmdCLAchievementCompleteList
 };
 
 //! Clientbound achievement complete list response.
+//! Contains individual achievement progress AND per-book grade data.
 struct AcCmdCLAchievementCompleteListOK
 {
-  uint32_t unk0{};
-  std::vector<Quest> achievements;
+  uint32_t characterUid{};
+  std::vector<Quest> achievements{};
+
+  //! Per-book achievement data. Drives the achievements page display.
+  struct BookEntry
+  {
+    //! Book/category ID (0-8). References libconfig `AchievementBook` table.
+    uint8_t bookId{};
+    //! Current grade/tier for this book.
+    uint8_t grade{};
+    //! Per-tier progress data (one per tier: Bronze/Silver/Gold/Platinum).
+    std::array<uint32_t, 4> tierProgress{};
+  };
+  std::vector<BookEntry> books{};
 
   static Command GetCommand()
   {
@@ -1795,9 +1808,9 @@ struct AcCmdLCPersonalInfo
     float completionRate{};
     float member12{};
     uint32_t highestCarnivalPrize{};
-    uint16_t member14{};
-    uint16_t member15{};
-    uint16_t member16{};
+    //! Ceremony achievement showcase slot TIDs.
+    //! Set via AcCmdCRSetKeyAchievement, displayed on the profile.
+    std::array<uint16_t, 3> keyAchievements{};
     std::string introduction{};
     uint32_t level{60};
     //! Level progress as dictated by LevelInfo table in libconfig

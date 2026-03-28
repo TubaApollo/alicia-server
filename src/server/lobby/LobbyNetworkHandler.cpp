@@ -1767,15 +1767,23 @@ void LobbyNetworkHandler::HandleAchievementCompleteList(
   characterRecord.Immutable(
     [&response](const data::Character& character)
     {
-      response.unk0 = character.uid();
-    });
+      response.characterUid = character.uid();
 
-  // These are the level-up achievements from the `Achievement` table with the event id 75.
-  response.achievements.emplace_back().tid = 20008;
-  response.achievements.emplace_back().tid = 20009;
-  response.achievements.emplace_back().tid = 20010;
-  response.achievements.emplace_back().tid = 20011;
-  response.achievements.emplace_back().tid = 20012;
+      for (const auto& entry : character.achievements())
+      {
+        auto& quest = response.achievements.emplace_back();
+        quest.tid = entry.tid;
+        quest.member1 = entry.completed ? 1 : 0;
+        quest.member2 = entry.progress;
+      }
+
+      for (const auto& book : character.achievementBooks())
+      {
+        response.books.push_back({.bookId = book.bookId,
+          .grade = book.grade,
+          .tierProgress = book.tierProgress});
+      }
+    });
 
   _commandServer.QueueCommand<decltype(response)>(
     clientId,
@@ -1814,6 +1822,9 @@ void LobbyNetworkHandler::HandleRequestPersonalInfo(
 
         response.basic.introduction = character.introduction();
         response.basic.level = character.level();
+
+        response.basic.keyAchievements = character.keyAchievements();
+
         // TODO: implement other stats
         break;
       }
